@@ -91,7 +91,8 @@ function contexte({ pseudo, sha, runs, coupure }) {
         lock: lire(sha, 'package-lock.json'),
         dependabot: lire(sha, '.github/dependabot.yml') || lire(sha, '.github/dependabot.yaml'),
         workflowDe: (s) => lireWorkflow(lire(s, FICHIER_CI)).w || null,
-        depuisMain: git('merge-base', '--is-ancestor', 'origin/main', sha) !== null,
+        // La branche partage l'historique de main (main peut avoir avancé depuis)
+        depuisMain: !!git('merge-base', 'origin/main', sha),
         runCourant: termines.find((r) => r.head_sha === sha) || null,
     };
 }
