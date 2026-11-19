@@ -249,7 +249,8 @@ const MISSIONS = [
                 return { ok: false, aide: 'Le contrôle est en place. Poussez et regardez la CI échouer (point 2).' };
             }
             if (lodashVulnerable(c.lock)) return { ok: false, aide: 'Bien : la CI refuse la faille. Corrigez maintenant la dépendance (point 3).' };
-            if (!verte(c, (w) => audit(w)) || !(c.runCourant && c.runCourant.conclusion === 'success')) return rougeOuAttente(c, 'La correction');
+            // Une exécution verte, avec le contrôle, après l'exécution rouge (une CI rouge plus tard ne fait pas reculer)
+            if (!c.termines.some((x) => x.conclusion === 'success' && x.created_at > rouge.created_at && audit(c.workflowDe(x.head_sha)))) return rougeOuAttente(c, 'La correction');
             if (normaliser(c.reponses.q4 || '') !== 'lodash') return { ok: false, aide: '`q4` : quel paquet le rapport désignait-il ?' };
             return OK;
         },
