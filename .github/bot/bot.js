@@ -214,11 +214,13 @@ const MISSIONS = [
             if (!v) return { ok: false, aide: 'Je ne trouve plus votre image dans le registre.' };
             const m = /sha256:([0-9a-f]{12,64})/i.exec(c.reponses.q3 || '');
             if (!m) return { ok: false, aide: '`q3` : recopiez la ligne `Digest: sha256:…` affichée par `docker pull`.' };
-            if (!v.name.toLowerCase().startsWith(`sha256:${m[1].toLowerCase()}`)) return { ok: false, aide: '`q3` : ce n\'est pas le digest de votre dernière image. Refaites `docker pull` : si la CI a republié l\'image, le digest a changé.' };
+            // Chaque push republie l'image : un digest d'une version précédente reste accepté
+            if (!(await versionsImage()).some((x) => x.name.toLowerCase().startsWith(`sha256:${m[1].toLowerCase()}`))) return { ok: false, aide: '`q3` : ce digest ne correspond à aucune image publiée. Recopiez la ligne `Digest: sha256:…` affichée par `docker pull`.' };
             return OK;
         },
         bilan: () => [
             'Le **digest** est l\'empreinte exacte de l\'image : deux images au même nom mais au contenu différent ont deux digests différents. Une étiquette comme `:jdupont` peut être déplacée sur une autre image, le digest jamais.',
+            'Votre pipeline republie l\'image à chaque push : l\'étiquette `:<pseudo>` pointe alors sur une nouvelle image, avec un nouveau digest. C\'est pour ça qu\'en production on déploie une **version** précise, jamais une étiquette qui bouge.',
         ],
     },
     {
