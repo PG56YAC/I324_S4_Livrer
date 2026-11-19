@@ -1,0 +1,59 @@
+name: Bot
+
+# Répond aux élèves à la fin de chaque exécution de la CI de leur branche,
+# et au push quand leur workflow est illisible (la CI ne peut alors pas répondre).
+on:
+  push:
+    branches-ignore: [main]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+  packages: read
+
+concurrency:
+  group: bot-${{ github.event.workflow_run.head_branch || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  bot:
+    name: Bot livrer
+    if: >-
+      (github.event_name == 'push' && github.event.deleted == false) ||
+      github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - run: git fetch --force origin '+refs/heads/*:refs/remotes/origin/*'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+      - name: Installer le bot
+        run: npm ci --prefix .github/bot --no-audit --no-fund
+      - name: Vérifier les missions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENEMENT: ${{ github.event_name }}
+          ACTEUR: ${{ github.event.workflow_run.actor.login || github.actor }}
+          BRANCHE: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          SORTIE: ${{ runner.temp }}/resultat.json
+        run: node .github/bot/bot.js
+      - name: Répondre à l'élève
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RES: ${{ runner.temp }}/resultat.json
+          REPO: ${{ github.repository }}
+        run: |
+          node -e "const r=require(process.env.RES);if(r.commentaire)require('fs').writeFileSync('corps.json',JSON.stringify({body:r.commentaire}));require('fs').writeFileSync('sha.txt',r.sha||'')"
+          if [ -f corps.json ]; then
+            gh api -X POST "repos/$REPO/commits/$(cat sha.txt)/comments" --input corps.json > /dev/null
+          fi
