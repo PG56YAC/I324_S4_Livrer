@@ -238,8 +238,11 @@ const MISSIONS = [
             if (!audit(c.w)) return { ok: false, aide: 'Je ne vois pas de contrôle des dépendances qui échoue sur les failles graves. Cherchez les options de `npm audit`.' };
             let rouge = null;
             for (const r of c.termines.filter((x) => x.conclusion === 'failure').slice(0, 5)) {
-                if (!audit(c.workflowDe(r.head_sha))) continue;
-                if ((await jobsDe(r.id)).some((j) => (j.steps || []).some((s) => s.conclusion === 'failure' && /audit/i.test(s.name)))) { rouge = r; break; }
+                const w = c.workflowDe(r.head_sha);
+                if (!audit(w)) continue;
+                // Noms affichés des étapes qui lancent npm audit (nom donné, ou « Run <commande> »)
+                const noms = jobs(w).flatMap(etapes).filter((e) => /npm audit/.test(String(e.run || ''))).map((e) => e.name || `Run ${String(e.run).split(/\r?\n/)[0]}`);
+                if ((await jobsDe(r.id)).some((j) => (j.steps || []).some((e) => e.conclusion === 'failure' && (noms.includes(e.name) || /audit/i.test(e.name))))) { rouge = r; break; }
             }
             if (!rouge) {
                 if (!lodashVulnerable(c.lock)) return { ok: false, aide: 'La dépendance est déjà corrigée, mais je n\'ai jamais vu le contrôle échouer. Il manque la preuve du point 2.' };
