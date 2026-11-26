@@ -25,7 +25,7 @@ Si votre PC n'est pas encore prêt (Git, Node.js, Docker Desktop, identité Git,
    q1: la première phrase affichée par docker run hello-world
    q2:
    q3:
-   q4:
+   q4:  
    ```
 5. **Commit** avec le message `docs: ajoute ma fiche de réponses`, puis **Publish Branch**.
 
