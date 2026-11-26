@@ -39,5 +39,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v6
       - name: Construire l'image
-        run: docker build -t todo ../..
+        run: docker build -t todo .
