@@ -42,4 +42,8 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v6
       - name: Construire l'image
-        run: docker build -t todo .
+        run: docker build -t ghcr.io/pg56yac/i324_s4_livrer:latest .
+      - name: Se connecter
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push sur le registre
+        run: docker push ghcr.io/pg56yac/i324_s4_livrer:omegasofian2304:latest
