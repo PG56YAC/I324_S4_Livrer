@@ -1,3 +1,4 @@
+
 name: CI
 
 # Le pipeline de l'équipe : linter et tests à chaque push.
@@ -11,13 +12,19 @@ jobs:
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v7
+
       - name: Installer Node.js
         uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: npm
+
       - name: Installer les dépendances
         run: npm ci
+
+      - name: Vérifier les vulnérabilités
+        run: npm audit --audit-level=high
+
       - name: Lancer le linter
         run: npm run lint
 
@@ -26,20 +33,22 @@ jobs:
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v7
+
       - name: Installer Node.js
         uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: npm
+
       - name: Installer les dépendances
         run: npm ci
+
       - name: Lancer les tests unitaires
         run: npm test
 
-
   build:
     runs-on: ubuntu-latest
-    needs: [ lint, tests ]
+    needs: [lint, tests]
     permissions:
       contents: read
       packages: write
@@ -55,5 +64,3 @@ jobs:
 
       - name: Publier l'image Docker
         run: docker push ghcr.io/pg56yac/i324_s4_livrer:merydian01
-
-
