@@ -49,4 +49,4 @@ jobs:
       - name: docker
         run: docker build -t todo .
       - name: build
-        run: docker run -p 3000:3000 todo
+        run: docker run -d -p 3000:3000 todo
