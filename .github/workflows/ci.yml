@@ -38,9 +38,20 @@ jobs:
 
   build-docker:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v7
 
+      - name: Se connecter à GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Construire l'image Docker
-        run: docker build -t todo .
+        run: docker build -t ghcr.io/pg56yac/i324_s4_livrer:onfire1003 .
+
+      - name: Publier l'image Docker
+        run: docker push ghcr.io/pg56yac/i324_s4_livrer:onfire1003
