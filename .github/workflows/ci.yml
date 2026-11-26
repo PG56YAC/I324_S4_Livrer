@@ -87,8 +87,4 @@ jobs:
           node-version: lts/*
           cache: npm
       - name: npm audit
-        run: npm audit --audit-level=critical
-
-    build-and-push:
-      needs: [ lint, tests, audit ]
-      runs-on: ubuntu-latest
+        run: npm audit --audit-level=high
