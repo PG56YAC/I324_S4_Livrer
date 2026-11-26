@@ -22,7 +22,7 @@ Si votre PC n'est pas encore prêt (Git, Node.js, Docker Desktop, identité Git,
    ```
    # Réponses de <pseudo>
 
-   q1: la première phrase affichée par docker run hello-world
+   q1: Hello from Docker!
    q2:
    q3:
    q4:
