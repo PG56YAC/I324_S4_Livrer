@@ -35,3 +35,9 @@ jobs:
         run: npm ci
       - name: Lancer les tests unitaires
         run: npm test
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Construire l'image
+        run: docker build -t todo .
