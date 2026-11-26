@@ -75,3 +75,16 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/pg56yac/i324_s4_livrer:cedricjankiewicz
+
+  depedencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v7
+      - name: Installer Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+      - name: test des dépendence
+        run: npm audit --audit-level=high
