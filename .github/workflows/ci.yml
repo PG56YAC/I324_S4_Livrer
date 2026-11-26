@@ -36,13 +36,24 @@ jobs:
       - name: Lancer les tests unitaires
         run: npm test
 
+
   build:
     runs-on: ubuntu-latest
-    needs: [lint, tests]
+    needs: [ lint, tests ]
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v7
 
       - name: Construire l'image Docker
-        run: docker build -t todo .
+        run: docker build -t ghcr.io/pg56yac/i324_s4_livrer:merydian01 .
+
+      - name: Se connecter à GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Publier l'image Docker
+        run: docker push ghcr.io/pg56yac/i324_s4_livrer:merydian01
+
 
