@@ -1,6 +1,6 @@
-# Réponses de <pseudo>
+# Réponses de samuel-thyz
 
-q1: la première phrase affichée par docker run hello-world
+q1: Hello from Docker!
 q2:
 q3:
 q4:
